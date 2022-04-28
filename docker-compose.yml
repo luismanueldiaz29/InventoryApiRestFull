@@ -1,0 +1,40 @@
+version: '3.1'
+
+services:
+#database engine service
+  docker-mysql:
+    container_name: docker-mysql
+    image: "mysql:8.0"
+    restart: always
+    environment:
+      MYSQL_DATABASE: slplusdb2
+      MYSQL_USER: myroot
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 33062:3306
+       # <Port exposed> : < MySQL Port running inside container>
+
+#database admin service
+  adminer:
+    container_name: adminer
+    image: adminer
+    restart: always
+    depends_on: 
+      - docker-mysql
+    ports:
+      - 9090:8080
+
+#First app backend service
+  inventory-back:
+    build: .
+    restart: always
+    container_name: inventory-back
+    ports:
+      - 8097:8097
+    depends_on:
+      - docker-mysql
+    environment:
+      JDBC_URL: jdbc:mysql://docker-mysql:3306/slplusdb2
+      DB_USER: myroot
+      DB_PASS: root
